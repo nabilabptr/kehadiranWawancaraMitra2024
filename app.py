@@ -87,7 +87,7 @@ def main():
 
     # Tampilkan data kehadiran
     st.write("Data Kehadiran:")
-    st.dataframe(
+    st.data_editor(
         st.session_state.data_kehadiran.sort_values(by="nomor_urut"),
         column_config={
             "nik": "NIK",
@@ -97,7 +97,8 @@ def main():
             "nomor_urut": "Nomor Urut"
         },
         use_container_width=True, 
-        hide_index=True)
+        hide_index=True,
+        disabled=["nik","nama", "posisi_daftar","waktu","nomor_urut"])
 
 if __name__ == "__main__":
     main()
