@@ -38,6 +38,7 @@ def tambah_kehadiran(nik, nama, posisi_daftar):
     calon_mitra.loc[calon_mitra["nik"] == nik, "nomor_urut"] = nomor_urut
     conn = st.experimental_connection("gsheets", type=GSheetsConnection)
     conn.update(worksheet="daftar_nama", data=calon_mitra)
+    conn.update(worksheet="kehadiran", data=st.session_state.data_kehadiran)
 
 
 def main(): 
