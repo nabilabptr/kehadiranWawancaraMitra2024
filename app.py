@@ -31,11 +31,7 @@ def tambah_kehadiran(nik, nama, posisi_daftar):
     waktu = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nomor_urut = max(data_kehadiran["nomor_urut"]) + 1
     data_kehadiran.loc[len(data_kehadiran)] = [nik, nama, posisi_daftar, waktu, nomor_urut]
-    
-    conn = st.experimental_connection("gsheets", type=GSheetsConnection)
-    conn.update(worksheet="kehadiran", data=data_kehadiran)
-
-
+   
 def main(): 
     st.title("Daftar Hadir Wawancara Rekrutmen Mitra Statistik BPS Kabupaten Kepulauan Sula 2024")
 
@@ -71,6 +67,8 @@ def main():
                     for index, row in selected_data.iterrows():
                         if row["nama"] not in data_kehadiran["nama"].values:
                             tambah_kehadiran(row["nik"], row["nama"], row["posisi_daftar"])
+                            conn = st.experimental_connection("gsheets", type=GSheetsConnection)
+                            conn.update(worksheet="kehadiran", data=data_kehadiran)
                             nama_berhasil_ditambahkan.append(row["nama"])  # Tambahkan nama ke list
                     if nama_berhasil_ditambahkan:
                         st.success(f"Berhasil menambah kehadiran untuk {', '.join(nama_berhasil_ditambahkan)}. Total data kehadiran sekarang: {len(data_kehadiran)}")
