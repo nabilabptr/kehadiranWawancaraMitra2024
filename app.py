@@ -5,7 +5,7 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=36000)
 def load_data():
     conn = st.experimental_connection("gsheets", type=GSheetsConnection)
     data = conn.read(worksheet="daftar_nama", usecols=list(range(5)))
