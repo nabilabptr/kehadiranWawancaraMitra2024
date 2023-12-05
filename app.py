@@ -30,7 +30,7 @@ if 'data_kehadiran' not in st.session_state:
 # Fungsi untuk menambahkan kehadiran
 def tambah_kehadiran(nik, nama, posisi_daftar):
     waktu = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    nomor_urut = len(st.session_state.data_kehadiran) + 1
+    nomor_urut = max(st.session_state.data_kehadiran["nomor_urut"]) + 1
     st.session_state.data_kehadiran.loc[len(st.session_state.data_kehadiran)] = [nik, nama, posisi_daftar, waktu, nomor_urut]
     
     # Lakukan pembaruan data waktu dan nomor urut pada calon_mitra
