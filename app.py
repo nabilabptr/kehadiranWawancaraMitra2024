@@ -12,33 +12,28 @@ def load_data():
     data = data.dropna(how="all")
     return data
 
+def load_data_hadir():
+    conn = st.experimental_connection("gsheets", type=GSheetsConnection)
+    data = conn.read(worksheet="kehadiran", usecols=list(range(5)))
+    data = data.dropna(how="all")
+    return data
+
 calon_mitra = load_data()
 calon_mitra["nik"] = calon_mitra["nik"].astype(str)
 
 # Tambahkan kolom checkbox
 calon_mitra["Check"] = [False] * len(calon_mitra)
 
-# Inisialisasi session state
-if 'data_kehadiran' not in st.session_state:
-    # Filter calon_mitra yang kolom waktu tidak kosong
-    data_kehadiran_init = calon_mitra[calon_mitra['waktu'].notnull()]
-
-    # Buat DataFrame baru untuk data_kehadiran
-    st.session_state.data_kehadiran = pd.DataFrame(data_kehadiran_init, columns=["nik", "nama", "posisi_daftar", "waktu", "nomor_urut"])
-
+data_kehadiran = load_data_hadir()
 
 # Fungsi untuk menambahkan kehadiran
 def tambah_kehadiran(nik, nama, posisi_daftar):
     waktu = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    nomor_urut = max(st.session_state.data_kehadiran["nomor_urut"]) + 1
-    st.session_state.data_kehadiran.loc[len(st.session_state.data_kehadiran)] = [nik, nama, posisi_daftar, waktu, nomor_urut]
+    nomor_urut = max(data_kehadiran["nomor_urut"]) + 1
+    data_kehadiran.loc[len(data_kehadiran)] = [nik, nama, posisi_daftar, waktu, nomor_urut]
     
-    # Lakukan pembaruan data waktu dan nomor urut pada calon_mitra
-    calon_mitra.loc[calon_mitra["nik"] == nik, "waktu"] = waktu
-    calon_mitra.loc[calon_mitra["nik"] == nik, "nomor_urut"] = nomor_urut
     conn = st.experimental_connection("gsheets", type=GSheetsConnection)
-    conn.update(worksheet="daftar_nama", data=calon_mitra)
-    conn.update(worksheet="kehadiran", data=st.session_state.data_kehadiran)
+    conn.update(worksheet="kehadiran", data=data_kehadiran)
 
 
 def main(): 
@@ -74,11 +69,11 @@ def main():
                 if not selected_data.empty:
                     nama_berhasil_ditambahkan = []  # Inisialisasi list untuk menyimpan nama yang berhasil ditambahkan
                     for index, row in selected_data.iterrows():
-                        if row["nama"] not in st.session_state.data_kehadiran["nama"].values:
+                        if row["nama"] not in data_kehadiran["nama"].values:
                             tambah_kehadiran(row["nik"], row["nama"], row["posisi_daftar"])
                             nama_berhasil_ditambahkan.append(row["nama"])  # Tambahkan nama ke list
                     if nama_berhasil_ditambahkan:
-                        st.success(f"Berhasil menambah kehadiran untuk {', '.join(nama_berhasil_ditambahkan)}. Total data kehadiran sekarang: {len(st.session_state.data_kehadiran)}")
+                        st.success(f"Berhasil menambah kehadiran untuk {', '.join(nama_berhasil_ditambahkan)}. Total data kehadiran sekarang: {len(data_kehadiran)}")
                     else:
                         st.warning("Tidak ada nama yang ditambahkan karena sudah ada sebelumnya.")
                 elif selected_data.empty:
@@ -88,7 +83,7 @@ def main():
     # Tampilkan data kehadiran
     st.write("Data Kehadiran:")
     st.data_editor(
-        st.session_state.data_kehadiran.sort_values(by="nomor_urut"),
+        data_kehadiran.sort_values(by="nomor_urut"),
         column_config={
             "nik": "NIK",
             "nama": "Nama Calon Mitra",
