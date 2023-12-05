@@ -12,8 +12,7 @@ def load_data():
     data = data.dropna(how="all")
     return data
 
-data = load_data()
-calon_mitra = data
+calon_mitra = load_data()
 calon_mitra["nik"] = calon_mitra["nik"].astype(str)
 
 # Tambahkan kolom checkbox
